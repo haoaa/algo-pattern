@@ -1,7 +1,10 @@
 class Node {
-  constructor(element){
+  constructor(element, next = null){
     this.element = element
-    this.next = null
+    this.next = next
+  }
+  toString(callback) {
+    return callback ? callback(this.element) : this.element
   }
 }
 /* 单向链表 */
@@ -43,8 +46,13 @@ class LinkedList {
     newNode.next = cur.next
     cur.next = newNode
   }
+  insertHead(element) {
+    let node =new  Node(element)
+    node.next =this.head.next
+    this.head.next = node
+  }
   findPrev (item) {
-    let curNode = this.head
+    let curNode = this.head.next
     while (curNode.next !== null && curNode.next.element !== item) {
       curNode = curNode.next
     }
@@ -66,8 +74,29 @@ class LinkedList {
       cur = cur.next
     }
   }
+  length() {
+    let cur = this.head
+    let len = 0
+    while (cur.next) {
+      len++
+      cur = cur.next
+    }
+    return len
+  }
+  /* 新起头然后头部插入 */
+  reverse() {
+    const newHeader = new Node('header')
+    let cur = this.head
+    while(cur.next) {
+      let next = cur.next
+      cur.next = newHeader.next
+      newHeader.next = cur
+      cur = next
+    }
+    this.head = newHeader
+  }
 }
-
+module.exports = LinkedList
 // const LList = new LinkedList()
 // LList.append('1')
 // LList.append('2')
