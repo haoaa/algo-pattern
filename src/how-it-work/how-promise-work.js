@@ -3,7 +3,7 @@ const REJECTED = 'rejected'
 const PENDING = 'pending'
 const FULLFILLED = 'fullfilled'
 
-function project(executor) {
+function MyPromise(executor) {
   this.state = PENDING
   this.value = null
   this.reason = null
@@ -11,8 +11,8 @@ function project(executor) {
   this.onRejectedArray = []
 
   const resolve = value => {
-    if (value instanceof project) {
-      project.then(resolve, reject)
+    if (value instanceof MyPromise) {
+      MyPromise.then(resolve, reject)
     }
     if (this.state === PENDING){
       this.state = FULLFILLED
@@ -38,13 +38,63 @@ function project(executor) {
   }
 }
 
+MyPromise.prototype.then = function(onFullfilled, onRejected) {
+  onFullfilled = typeof onFullfilled === 'function' ? onFullfilled : data => data
+  onRejected = typeof onRejected === 'function' ? onRejected : err => {throw new Error(err)}
+  
+  let promise2
+  if (this.state === FULLFILLED) {
+    return promise2 = new MyPromise((resolve2, reject2) => {
+      setTimeout(() => {
+        try {
+          let result = onFullfilled(this.value)
+          resolvePromise(promise2, result, resolve2, reject2)
+        } catch (error) {
+          reject2(error)
+        }
+      })
+    })    
+  } else if (this.state === REJECTED) {
+    return promise2 = new MyPromise((resolve2, reject2) => {
+      setTimeout(() => {
+        try {
+          let result = onRejected(this.reason)
+          resolvePromise(promise2, result, resolve2, reject2)
+        } catch (error) {
+          reject2(error)
+        }
+      })
+    })
+  } else if (this.state === PENDING) {
+    promise2 = new MyPromise((resolve2, reject2) => {
+      this.onFullfilledArray.push(() => {
+        try {
+          let result = onFullfilled(this.value)
+          resolvePromise(promise2, result, resolve2, reject2)
+        } catch (error) {
+          reject2(error)
+        }
+      })
+      this.onRejectedArray.push(_ => {
+        try {
+          let result = onRejected(this.reason)
+          resolvePromise(promise2, result, resolve2, reject2)
+        } catch (error) {
+          reject2(error)
+        }
+      })
+    })    
+  }
+  return promise2
+}
+
 const resolvePromise = (promise2, result, resolve2, reject2) => {
   if (result === promise2) {
     reject2(new TypeError('circular reference 吱吱吱?'))
   }
   let consumed = false
   let thenable
-  if (result instanceof project) {
+  if (result instanceof MyPromise) {
     if (result.state !== PENDING) {
       result.then(resolve2, reject2)
     } else {
@@ -89,65 +139,17 @@ const resolvePromise = (promise2, result, resolve2, reject2) => {
     resolve2(result)
   }
 }
-project.prototype.then = function(onFullfilled, onRejected) {
-  onFullfilled = typeof onFullfilled === 'function' ? onFullfilled : data => data
-  onRejected = typeof onRejected === 'function' ? onRejected : err => {throw new Error(err)}
-  
-  let promise2
-  if (this.state === FULLFILLED) {
-    return promise2 = new project((resolve2, reject2) => {
-      setTimeout(() => {
-        try {
-          let result = onFullfilled(this.value)
-          resolvePromise(promise2, result, resolve2, reject2)
-        } catch (error) {
-          reject2(error)
-        }
-      })
-    })    
-  } else if (this.state === REJECTED) {
-    return promise2 = new project((resolve2, reject2) => {
-      setTimeout(() => {
-        try {
-          let result = onRejected(this.reason)
-          resolvePromise(promise2, result, resolve2, reject2)
-        } catch (error) {
-          reject2(error)
-        }
-      })
-    })
-  } else if (this.state === PENDING) {
-    promise2 = new project((resolve2, reject2) => {
-      this.onFullfilledArray.push(() => {
-        try {
-          let result = onFullfilled(this.value)
-          resolvePromise(promise2, result, resolve2, reject2)
-        } catch (error) {
-          reject2(error)
-        }
-      })
-      this.onRejectedArray.push(_ => {
-        try {
-          let result = onRejected(this.reason)
-          resolvePromise(promise2, result, resolve2, reject2)
-        } catch (error) {
-          reject2(error)
-        }
-      })
-    })    
-  }
-  return promise2
-}
-project.prototype.catch = function (onRejected) {
+
+MyPromise.prototype.catch = function (onRejected) {
     return this.then(null, onRejected)
 }
-project.resolve = function (value) {
-  return new project((resolve, reject) => {
+MyPromise.resolve = function (value) {
+  return new MyPromise((resolve, reject) => {
     resolve(value)
   })
 }
-// let pro = new project((res, rej) => {
-//   return new project((r,j) => r(332))
+// let pro = new MyPromise((res, rej) => {
+//   return new MyPromise((r,j) => r(332))
 // }).then(data => {
 //   console.log(data);
 // })
@@ -159,7 +161,7 @@ project.resolve = function (value) {
 // })
 
 
-// const promise = new project((resolve, reject) => {
+// const promise = new MyPromise((resolve, reject) => {
 //   resolve('lucas')
 //   // setTimeout(() => {
 //   //     resolve('lucas')
@@ -173,7 +175,7 @@ project.resolve = function (value) {
 // .then(data => {
 //   console.log(data)
 // })
-const promise = new project((resolve, reject) => {
+const promise = new MyPromise((resolve, reject) => {
   setTimeout(() => {
       resolve('lucas')
   }, 2000)
@@ -181,7 +183,7 @@ const promise = new project((resolve, reject) => {
 
 promise.then(data => {
   console.log(data)
-  return new project((resolve, reject) => {
+  return new MyPromise((resolve, reject) => {
     setTimeout(() => {
         resolve(`${data} next then`)
     }, 4000)
