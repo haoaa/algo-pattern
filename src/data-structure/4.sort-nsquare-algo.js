@@ -61,23 +61,75 @@ class Sort{
       if (start >= end) {
         return
       }
-      let mid = (start + end) / 2
-      let left = mergeCall(arr, start, mid)
-      let right = mergeCall(arr, mid + 1, end)
-      merge(arr, left, right)
+      let mid = (start + end) / 2 | 0
+      mergeCall(arr, start, mid)
+      mergeCall(arr, mid + 1, end)
+      merge(arr, start, mid, end)
     }
-    function merge(arr, left, right) {
-      let i = 0, j =0
-      for (let i = 0; i < left.length; i++) {
-        const element = left[i];
-        
+    function merge(arr, left, mid ,right) {
+      let i = left, j = mid + 1, k = 0
+      let tempArr = new Array(right - left + 1) // 合并成有序数组
+      while (i <= mid && j <= right) {
+        if (arr[i] <= arr[j]) {
+          tempArr[k] = arr[i]
+          i++
+        } else {
+          tempArr[k] = arr[j]
+          j++
+        }
+        k++
+      }
+      // copy rest
+      while (i <= mid) {
+        tempArr[k] = arr[i]
+        k++
+        i++
+      }
+      while (j <= right) {
+        tempArr[k] = arr[j]
+        k++
+        j++
+      }
+      for (let i = 0; i < tempArr.length; i++) {
+        arr[left + i] = tempArr[i]        
       }
     }
+    mergeCall(arr, 0, arr.length - 1)
+  }
+  /* The purpose of a sentinel is to reduce the total number of comparisons while merging two arrays */
+  mergeSortWithSentinel(arr = []) {
+    function mergeCall(arr, start, end) {
+      if (start >= end) {
+        return
+      }
+      let mid = (start + end) / 2 | 0
+      mergeCall(arr, start, mid)
+      mergeCall(arr, mid + 1, end)
+      merge(arr, start, mid, end)
+    }
+    function merge(arr, left, mid ,right) {
+      let i = 0, j = 0
+      // 把数组拷贝到两份临时数组, 比对回填到原数组. 两份数组最后放一个无穷大数做哨兵
+      let tempLeft = arr.slice(left, mid + 1)
+      tempLeft[tempLeft.length] = Number.POSITIVE_INFINITY
+      let tempRight = arr.slice(mid + 1, right + 1)
+      tempRight[tempRight.length] = Number.POSITIVE_INFINITY
+
+      for (let k = left; k <= right; k++) {
+        if (tempLeft[i] <= tempRight[j]) {
+          arr[k] = tempLeft[i++]
+        } else {
+          arr[k] = tempRight[j++]
+        }
+      }
+    }
+    mergeCall(arr, 0, arr.length - 1)
   }
 }
 
 let st = new Sort()
 let arr = [4, 5, 6, 3, 2, 1]
 // st.bubleSort(arr)
-st.selectionSort(arr)
+// st.mergeSort(arr)
+st.mergeSortWithSentinel(arr)
 console.log(arr);
