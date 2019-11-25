@@ -22,6 +22,9 @@ class Sort{
     }
   }
   insertionSort(arr = []){
+    /* 从第二个元素开始算无序区, 遍历无序区的元素, 
+      与有序区从后向前比较(稳定),小就往后挪 大就不懂
+    */
     let length = arr.length
     if (length <= 1) {
       return

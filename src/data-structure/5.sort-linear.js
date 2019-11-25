@@ -1,8 +1,10 @@
 class Sort{
+  // bucketSize不是桶容量,而是桶里数值的区间范围 [x, x + 10)
   bucketSort(arr = [], bucketSize = 10) {
-    let length = arr.length
-    let maxValue = Number.NEGATIVE_INFINITY, minValue = Number.NEGATIVE_INFINITY
-    if (length <= 1) {
+    // 最大值最小值之前划分桶, 遍历数组的数据到桶里
+    // 桶内排序后, 再拷贝到原数组
+    let maxValue = Number.NEGATIVE_INFINITY, minValue = Number.POSITIVE_INFINITY
+    if (arr.length <= 1) {
       return arr
     }
     for (let i = 0; i < arr.length; i++) {
@@ -13,8 +15,46 @@ class Sort{
         minValue = element
       }
     }
-    let bucketCount = (maxValue - minValue) / (bucketSize + 1)
-    let bucketArr = [[]]
+    let bucketCount = Math.floor((maxValue - minValue) / bucketSize) + 1
+    let bucketsArr = []
+    // 桶初始化
+    for (let i = 0; i < bucketCount; i++) {
+      bucketsArr[i] = [] 
+    }
+    // 数据入桶
+    for (let i = 0; i < arr.length; i++) { 
+      const val = arr[i];
+      let index = Math.floor((val - minValue) / bucketSize)
+      bucketsArr[index].push(val)
+    }
+    // 桶内排序    
+    function insertionSort(arr) {
+      if (arr.length <= 1) return
+      for (let j = 1; j < arr.length; j++) {
+        const element = arr[j];
+        let k = j - 1
+        for (; k >= 0; k--) {
+          if (arr[k] > element) {
+            arr[k + 1] = arr[k]
+          } else {
+            break
+          }         
+        }
+        arr[k + 1] = element
+      }
+    }
+    for (let i = 0; i < bucketsArr.length; i++) {
+      const bucket = bucketsArr[i];
+      insertionSort(bucket)
+    }
+    // 拷贝到原数组
+    let k = 0
+    for (let i = 0; i < bucketsArr.length; i++) {
+      const bucket = bucketsArr[i];
+      for (let j = 0; j < bucket.length; j++) {
+        arr[k++] = bucket[j]        
+      }
+    }
   }
   countingSort(arr = []) {
     let length = arr.length
@@ -44,39 +84,36 @@ class Sort{
     }
   }
   radixSort(arr = []){
+    // 1. 根据最长的那个值判断分桶循环次数. 
+    // 2. 从低位到高位排序, 按每位的取值范围生成桶数
+    // 3. 当前位分到对应的桶里
+    // 4. 把桶里按位排好的数据拷贝回原数组, 循环到最长的那个值为止
     let length = arr.length
     if (length <= 1) {
       return
     }
-    for (let i = 1; i < length; i++){
-      let value = arr[i] // 有数据移动的话,空出i的位置
-      let j = i - 1
-      for (; j >= 0; j--) { // 倒着比才能实现稳定
-        if (arr[j] > value) {
-          arr[j + 1] = arr[j]
-        } else {
-          break
-        }
+    function getMax(arr) {
+      let max = 0;
+      for (let num of arr) {
+          if (max < num.toString().length) {
+              max = num.toString().length
+          }
       }
-      arr[j + 1] = value
+      return max
     }
-  }
-  selectionSort(arr = []) {
-    let length = arr.length
-    if (length <= 1) {
-      return
+    function getNumberAtPos(num, pos) {
+      return Math.floor(num / Math.pow(10, pos)) % 10
     }
-    for (let i = 0; i < length - 1; i++){ // 最后两个只要比一次
-      let minIndex = i      
-      for (let j = i + 1; j < length; j++) {
-        if (arr[j] < arr[minIndex] ) {
-          minIndex = j
-        }
+    let loop = getMax(arr)
+    for (let i = 0; i < loop; i++) {
+      let buckets = Array.from({length: 10}, () => [])
+      for (let j = 0; j < arr.length; j++) {
+        const element = arr[j];
+        buckets[getNumberAtPos(element, i)].push(element)
       }
-      if (i !== minIndex) {    // 最小位和起始位不一样才换     
-        this.swap(arr, i, minIndex)
-      }
+      arr= [].concat(...buckets)
     }
+    return arr
   }
   
 }
@@ -87,3 +124,10 @@ let arr = [2, 5, 3, 0, 2, 3, 0, 3]
 // st.mergeSort(arr)
 st.countingSort(arr)
 console.log(arr);
+
+let bucketArr = [2, 5, 3, 6, 2, 7, 0, 3, 5, 9, 8, 2, 6, 6, 4, 7]
+
+st.bucketSort(bucketArr, 3)
+console.log(bucketArr);
+
+console.log(st.radixSort([4, 57, 7, 3, 933])) // [3,4,7,57,933]
