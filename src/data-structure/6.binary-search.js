@@ -122,6 +122,44 @@ class BinarySearch{
     }
     return start === end && arr[start] === num ? start : -1
   }
+  /* 一个循环有序数组，二分查找值, 先找旋转下标, 再二分*/
+  circularArrayBisearchRotateIndex(arr, num) {
+    if (!arr.length) {
+      return -1
+    }
+    if (arr.length === 1) {
+      if (arr[0] === num) {
+        return 0
+      } else {
+        return -1        
+      }
+    }
+    function findRotateIndex(arr) {
+      let mid
+      let start = 0, end = arr.length - 1
+      while (start <= end) {
+        mid = start + Math.floor((end - start) / 2)
+        if(arr[mid] > arr[mid + 1] || mid === end){ //mid === end 正序两个节点的情况
+          return mid
+        } else {
+          if (arr[mid] >= arr[start]) {
+            // 有序区
+            start = mid + 1
+          } else {
+            end = mid - 1
+          }
+        }
+      }
+    }
+    let rotateIndex = findRotateIndex(arr);
+    if(num >= arr[0] && num <= arr[rotateIndex]) {
+      // 左区
+      return this.binaryFind(arr.slice(0, rotateIndex + 1), num)
+    } else {
+      let right = this.binaryFind(arr.slice(rotateIndex + 1, arr.length), num)
+      return right !== -1 ? right + rotateIndex + 1 : -1
+    }
+  }
 }
 
 const bs = new BinarySearch()
@@ -139,6 +177,8 @@ const binaryFindTest = [1, 3, 4, 4, 5, 6, 8, 8, 8, 11, 18]
 // console.log(bs.searchFirstGreaterEqual(binaryFindTest, 7));
 // console.log(bs.searchLastLesserEqual(binaryFindTest, 7));
 
-let circularArr = [2,4,5,6,7,0,1,2]
+let circularArr = [4,5,6,7,0,1,2]
 
-console.log(bs.circularArrayBisearch(circularArr, 7));
+// console.log(bs.circularArrayBisearch(circularArr, 7));
+console.log(bs.circularArrayBisearchRotateIndex(circularArr, 0));
+
