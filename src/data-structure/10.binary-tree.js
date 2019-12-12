@@ -114,6 +114,20 @@ class BinarySearchTree {
     this.postOrder(root.right)
     console.log(root.value);
   }
+  levelOrder(root) { // 广度优先遍历
+    let q = []
+    q.push(root)
+    while (q.length) {
+      let node = q.shift()
+      console.log(node.value);
+      if (node.left) {
+        q.push(node.left)
+      }
+      if (node.right) {
+        q.push(node.right)
+      }
+    }
+  }
 }
 
 
@@ -135,5 +149,6 @@ searchTree.insert(6);
 // console.log(searchTree.find(6));
 // searchTree.delete(8)
 // searchTree.preOrder(searchTree.root);
-searchTree.inOrder(searchTree.root);
+// searchTree.inOrder(searchTree.root);
 // searchTree.postOrder(searchTree.root);
+searchTree.levelOrder(searchTree.root)
