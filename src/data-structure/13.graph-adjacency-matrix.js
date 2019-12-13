@@ -81,21 +81,22 @@ class Adjoin {
   }
 
   bfs(startId, endID) {
-    const nodes = [];
+    // 广度遍历, 在深入子节点前把子节点都添加到队列里, 根据队列的先进先出特性, 可以先访问完本层顶点后再深入下一层
+    const nodes = []; // 顺序遍历的节点
     if (startId != null) {
-      const stack = [];
-      stack.unshift([startId]);
-      while (stack.length !== 0) {
-        const sides = stack.shift();
+      const queue = []; // [t目标点, s起点]对
+      queue.unshift([startId]);
+      while (queue.length !== 0) {
+        const sides = queue.shift();
         const side = sides[0];
 
-        if (nodes.every(item => item[0] !== side)) {
+        if (nodes.every(item => item[0] !== side)) { // 已访问不处理
           nodes.push(sides);
           // 结束点退出
           if (side === endID) break;
           const children = this.getAdjoinVertexs(side);
           children.forEach((item) => {
-            stack.push([item, side]);
+            queue.push([item, side]);
           });
         }
       }
@@ -218,13 +219,16 @@ const commoditySpecs = [
 
 let optList = new ShopAdjoin(commoditySpecs, data)
 console.log(optList.querySpecsOptions([]))  // 套餐可选项目
-const g1 = new Adjoin(['v0', 'v1', 'v2', 'v3', 'v4'])
-g1.setAdjoinVertexs('v0', ['v2', 'v3'])
-g1.setAdjoinVertexs('v1', ['v3', 'v4'])
+const g1 = new Adjoin(['v0', 'v1', 'v2', 'v3', 'v4', 'v5', 'v6'])
+g1.setAdjoinVertexs('v0', ['v2', 'v1'])
+g1.setAdjoinVertexs('v1', ['v0', 'v4'])
 g1.setAdjoinVertexs('v2', ['v0', 'v3', 'v4'])
-g1.setAdjoinVertexs('v3', ['v0', 'v1', 'v2'])
-g1.setAdjoinVertexs('v4', ['v1', 'v2'])
-// console.log(g1.bfs('v2'));
+g1.setAdjoinVertexs('v3', ['v2', 'v5'])
+g1.setAdjoinVertexs('v4', ['v2', 'v1', 'v5'])
+g1.setAdjoinVertexs('v5', ['v6', 'v3', 'v4'])
+g1.setAdjoinVertexs('v6', ['v5'])
+console.log(JSON.stringify(g1.bfs('v0')));
+console.log(JSON.stringify(g1.dfs('v0')));
 
-const router = g1.dijkstra('v4', 'v3');
-console.log(`距离：${router[router.length - 1][0]}, 路线：${g1.lookupLink(router.map(item => [item[1], item[2]]))}`);
+// const router = g1.dijkstra('v4', 'v3');
+// console.log(`距离：${router[router.length - 1][0]}, 路线：${g1.lookupLink(router.map(item => [item[1], item[2]]))}`);
