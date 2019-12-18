@@ -41,8 +41,8 @@ function generateGS(sub, suffix, prefix) {
 // j 表示坏字符对应的模式串中的字符下标 ; m 表示模式串长度
 function moveByGS(j, m, suffix, prefix) {
   let k = m - 1 - j; // 好后缀长度
-  if (suffix[k] != -1) return j - suffix[k] +1;
-  for (let r = j+2; r <= m-1; ++r) {
+  if (suffix[k] != -1) return j - suffix[k] +1; // 最长匹配前缀不在串首
+  for (let r = j+2; r <= m-1; ++r) { // j是序号5->4,
     if (prefix[m-r] == true) {
       return r;
     }
@@ -66,9 +66,9 @@ function bm(srcString, sub) {
     }
     if (j < 0) {return i} //匹配返回
     // 这里等同于将模式串往后滑动 j-subMap[[i+j]] 位
-    let x = i + (j - subMap[srcString[i + j].charCodeAt(0)]) // 坏字符不在模式串里呢
+    let x = j - subMap[srcString[i + j].charCodeAt(0)] // 坏字符在模式串里的位置
     let y = 0
-    if (j < subLength - 1) {  // 如果有好后缀的话
+    if (j < subLength - 1) {  // 如果有好后缀的话, 前面j = subLength - 1
       y = moveByGS(j, subLength, suffix, prefix)
     }
     i = i + Math.max(x, y)
