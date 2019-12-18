@@ -8,7 +8,7 @@ class Node{
 }
 
 class Trie {
-  constructor(data) {
+  constructor() {
     this.root = new Node('/')
     this.beginCharCode = 'a'.charCodeAt(0)
   }

@@ -27,7 +27,7 @@ function generateGS(sub, suffix, prefix) {
   for (let i = 0; i < m - 1; i++) { // sub[0, i]
     let j = i
     let k = 0 // 公共后缀子串长度
-    while (j >=0 && sub[j] === sub[m - 1 - k]) { //一步步调试才看懂
+    while (j >=0 && sub[j] === sub[m - 1 - k]) { //一步步调试才看懂, 两天后就看不懂了
       --j
       ++k
       suffix[k] = j + 1 //j+1 表示公共后缀子串在 sub[0, i] 中的起始下标i
