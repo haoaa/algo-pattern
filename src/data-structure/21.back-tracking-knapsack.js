@@ -11,16 +11,22 @@ let items = [7, 5, 8]
  * @param {*} n 表示物品个数
  * @param {*} w 背包重量
  */
+let memo = Array.from({length: items.length}).fill([])
 function bp(i, cw, items, n, w) {
   if (cw == w || i == n) { // cw==w 表示装满了 ;i==n 表示已经考察完所有的物品
     if (cw > maxW) maxW = cw;
     return;
   }
+  if (memo[i][cw]) {
+    return
+  }
+  memo[i][cw] = true
   bp(i+1, cw, items, n, w);
   if (cw + items[i] <= w) {// 已经超过可以背包承受的重量的时候，就不要再装了
     bp(i+1,cw + items[i], items, n, w);
   }
 }
-
+console.time('s')
 bp(0, 0, items, items.length, 12)
 console.log(maxW);
+console.timeEnd('s')
