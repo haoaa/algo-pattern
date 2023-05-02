@@ -68,11 +68,11 @@ console.timeEnd(2);
 // 用例保证除几何平均值为最大值的子数组外，其他子数组的几何平均值至少比最大值小
 // 10^-10 倍
 getResult([2, 2, 3], 2);
-getResult([0.2,0.1,0.2,0.2,0.2,0.1,0.2,0.2,0.2,0.2], 2);
+getResult([0.2, 0.1, 0.2, 0.2, 0.2, 0.1, 0.2, 0.2, 0.2, 0.2], 2);
 function getResult(numbers, k) {
   const sorted_numbers = numbers.slice().sort((a, b) => a - b);
   let l = sorted_numbers.at(0);
-  let r = sorted_numbers.at(-1);
+  let r = sorted_numbers[numbers.length - 1];
   const diff = 1e-10;
   let ans = [];
   while (r - l > diff) {
@@ -86,7 +86,8 @@ function getResult(numbers, k) {
       avgSum *= numbers[i] / midAvg; // k+长度的均值汇总
       if (i >= k) {
         preAvgSum *= numbers[i - k] / midAvg;
-        if (preAvgSum < preAvgSumMin) {//移除最少的才能剩下最大的
+        if (preAvgSum < preAvgSumMin) {
+          //移除最少的才能剩下最大的
           minIdx = i - k + 1;
           preAvgSumMin = preAvgSum;
         }

@@ -65,3 +65,25 @@ module.exports.PriorityQueue = class PriorityQueue {
     return this.queue.length;
   }
 };
+
+// 并查集实现
+module.exports.UnionFindSet = class UnionFindSet {
+  constructor(n) {
+    this.fa = new Array(n).fill(0).map((_, i) => i);
+    this.count = n;
+  }
+  find(x) {
+    if (x !== this.fa[x]) {
+      return (this.fa[x] = this.find(this.fa[x]));
+    }
+    return x;
+  }
+  union(x, y) {
+    const x_fa = this.find(x);
+    const y_fa = this.find(y);
+    if (x_fa !== y_fa) {
+      this.fa[y_fa] = x_fa;
+      this.count--;
+    }
+  }
+};
