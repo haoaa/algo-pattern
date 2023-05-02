@@ -308,3 +308,84 @@ function buildSiteTime(relations, taskNum) {
   }
   return t;
 }
+
+/**
+ * 某电力公司希望在这里建设多个
+光伏电站，生产清洁能源对每平方公里的土地进行了发电评估，其中不能建设的区域发电量
+为 0kw，可以发电的区域根据光照，地形等给出了每平方公里年发电量 x 千瓦。我们希望能
+够找到其中集中的矩形区域建设电站，能够获得良好的收益
+输入描述
+第一行输入为调研的地区长，宽，以及准备建设的电站[长宽相等，为正方形] 的边长
+最低要求的发电量之后每行为调研区域每平方公里的发电量
+输出描述
+输出为这样的区域有多少个
+ */
+/**
+ * @param {*} r 调研区域的长
+ * @param {*} c 调研区域的宽
+ * @param {*} s 正方形电站的边长
+ * @param {*} min 正方形电站的最低发电量
+ * @param {*} matrix 调研区域每单位面积的发电量矩阵
+ */
+// getResult(2, 5, 2, 6, [
+//   [1, 3, 4, 5, 8],
+//   [2, 3, 6, 7, 1],
+// ]);
+function getResult(r, c, s, min, matrix) {
+  // 列压缩
+  const zip_col_dps = [];
+  // 列压缩后的列数
+  const zip_c = c - s + 1;
+  for (let row of matrix) {
+    const zip_col_dp = new Array(zip_c).fill(0);
+    for (let i = 0; i < s; i++) {
+      zip_col_dp[0] += row[i];
+    }
+    for (let i = 1; i < zip_c; i++) {
+      zip_col_dp[i] = zip_col_dp[i - 1] - row[i - 1] + row[i + s - 1];
+    }
+    zip_col_dps.push(zip_col_dp);
+  }
+  matrix = zip_col_dps;
+  // 行压缩之后的行数
+  const zip_r = r - s + 1;
+  // 题解
+  let ans = 0;
+  for (let j = 0; j < zip_c; j++) {
+    const zip_row_dp = new Array(zip_c).fill(0);
+    for (let i = 0; i < s; i++) {
+      zip_row_dp[0] += matrix[i][j];
+    }
+    if (zip_row_dp[0] >= min) ans++;
+    for (let i = 1; i < zip_r; i++) {
+      zip_row_dp[i] =
+        zip_row_dp[i - 1] - matrix[i - 1][j] + matrix[i + s - 1][j];
+      if (zip_row_dp[i] >= min) ans++;
+    }
+  }
+  return ans;
+}
+// 二维矩阵前缀和
+function getResult(r, c, s, min, matrix) {
+  const preSum = new Array(r + 1).fill(0).map(() => new Array(c + 1).fill(0));
+  for (let i = 1; i <= r; i++) {
+    for (let j = 1; j <= c; j++) {
+      preSum[i][j] =
+        preSum[i - 1][j] +
+        preSum[i][j - 1] -
+        preSum[i - 1][j - 1] +
+        matrix[i - 1][j - 1];
+    }
+  }
+  let ans = 0;
+  for (let i = s; i <= r; i++) {
+    for (let j = s; j <= c; j++) {
+      const square =
+        preSum[i][j] -
+        (preSum[i - s][j] + preSum[i][j - s]) +
+        preSum[i - s][j - s];
+      if (square >= min) ans++;
+    }
+  }
+  return ans;
+}
