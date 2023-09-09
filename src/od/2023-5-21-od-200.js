@@ -6,7 +6,7 @@ const readline = async () => (await iter.next()).value;
  * 
  关联服务列表和离线节点求在线节点
 a1-a2,a5-a6,a2-a3,a7-a1,a8-a7
-a5,a2
+a5,a2 
  */
 void (async function () {
   let lines = [];
