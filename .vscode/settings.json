@@ -1,0 +1,9 @@
+{
+    "workbench.statusBar.visible": false,
+    "workbench.activityBar.location": "top",
+    "workbench.colorCustomizations": {
+        "[Default Dark Modern]": {
+            "badge.background": "#355bda"
+        }
+    }
+}
